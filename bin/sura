@@ -1,0 +1,56 @@
+#!/usr/bin/env node
+
+const program = require("commander")
+const pkg = require('../package.json')
+const cst = require('../constants')
+const API = require('../lib/API')
+
+function displayUsage() {
+  console.log('usage: sura [options] <command>')
+  console.log('')
+  console.log('sura -h, --help             all available commands and options')
+  console.log('sura <command> -h           help on a specific command')
+}
+
+var Sura = new API()
+
+program.version(pkg.version)
+  .option('-v --version', 'print sura version')
+  .usage('[cmd] [options]')
+
+program.command('logo')
+  .description('show logo')
+  .alias('l')
+  .action(function () {
+    Sura.logo()
+  })
+
+program.command('init')
+  .description('init sura project')
+  .alias('i')
+  .action(function (params) {
+    Sura.init()
+  })
+
+program.command('add')
+  .description('add sura module to /src/views')
+  .alias('a')
+  .action(function (dirname) {
+    Sura.add(dirname)
+  })
+
+program.command('*')
+  .action(function () {
+    console.log(cst.PREFIX_MSG + 'Command not found\n')
+    displayUsage()
+    // Check if it does not forget to close fds from RPC
+    process.exit(cst.ERROR_EXIT)
+  })
+
+if (process.argv.length == 2) {
+  displayUsage()
+  // Check if it does not forget to close fds from RPC
+  process.exit(cst.ERROR_EXIT)
+}
+  
+program.parse(process.argv)
